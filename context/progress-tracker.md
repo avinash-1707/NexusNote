@@ -75,6 +75,22 @@ Verify deletion cascades (pgvector rows + Cloudinary assets removed on note/PDF/
 
 - Phase 10: Deletion cleanup + polish.
 
+## Landing Page Revamp (Modern Playfulism)
+
+Completed full aesthetic overhaul of `app/(marketing)/`. New design system layered on top of existing app tokens without interference.
+
+**Files changed:**
+- `app/globals.css` — Added `--lp-*` CSS variables (Cyprus+Sand light / dark modes), 6 keyframe animations, utility classes (`.lp-blob`, `.lp-reveal`, `.lp-glass`, `.lp-glow-btn`, etc.), and responsive bento grid helpers
+- `tailwind.config.ts` — Added 12 `lp-*` color tokens
+- `app/(marketing)/layout.tsx` — Bricolage Grotesque + DM Sans fonts, `LandingNav` client component
+- `app/(marketing)/page.tsx` — Thin composition page
+- `components/marketing/LandingNav.tsx` — Glassmorphism nav with scroll detection
+- `components/marketing/HeroSection.tsx` — Cyprus/Sand hero + floating `KnowledgeOrb` SVG (claymorphism), mesh gradient blobs, staggered fade-ups, glowing CTA
+- `components/marketing/FeaturesSection.tsx` — 3-col bento grid with mixed card spans, inline chat/code previews, glassmorphism card, scroll reveals
+- `components/marketing/HowItWorksSection.tsx` — 3-step numbered flow, iridescent connector, scroll reveals
+- `components/marketing/FooterCTASection.tsx` — Dark Cyprus moody section, oversized "N" watermark, warm sand accents
+- `components/marketing/LandingFooter.tsx` — Minimal dark footer
+
 ## Next Up
 
 - Verify delete cascades: note/PDF/link delete removes pgvector chunks + Cloudinary asset.
