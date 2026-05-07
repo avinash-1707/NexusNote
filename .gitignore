@@ -29,6 +29,7 @@ venv/
 .turbo/
 .vercel/
 .cache/
+context/
 
 # Test coverage
 coverage/
