@@ -19,7 +19,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
   return (
     <div className={`${bricolage.variable} ${dmSans.variable} lp-root min-h-screen`}>
       <LandingNav />
-      <main className="pt-16">{children}</main>
+      <main>{children}</main>
     </div>
   )
 }

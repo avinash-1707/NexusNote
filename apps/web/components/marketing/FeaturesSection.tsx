@@ -23,7 +23,7 @@ function ChatPreview() {
   return (
     <div
       className="mt-5 rounded-2xl p-4 space-y-3"
-      style={{ backgroundColor: 'rgba(13,61,58,0.35)', border: '1px solid rgba(232,221,208,0.08)' }}
+      style={{ backgroundColor: 'var(--lp-preview-bg)', border: '1px solid rgba(232,221,208,0.08)' }}
     >
       {[
         { role: 'user', text: 'Summarise the key themes in my research?' },
@@ -67,7 +67,7 @@ function IsolationPreview() {
   return (
     <div
       className="mt-5 rounded-xl px-4 py-3 font-mono text-[11px] leading-6"
-      style={{ backgroundColor: 'rgba(13,61,58,0.45)', border: '1px solid rgba(232,221,208,0.08)', color: 'var(--lp-body)' }}
+      style={{ backgroundColor: 'var(--lp-code-preview-bg)', border: '1px solid rgba(232,221,208,0.08)', color: 'var(--lp-body)' }}
     >
       <span style={{ color: 'var(--lp-muted)' }}>{'-- RAG query'}</span>
       <br />
@@ -83,19 +83,19 @@ function IsolationPreview() {
 
 const badgeStyles: Record<Badge['variant'], React.CSSProperties> = {
   pink: {
-    backgroundColor: 'rgba(251,207,232,0.15)',
-    color: '#F9A8D4',
-    border: '1px solid rgba(249,168,212,0.2)',
+    backgroundColor: 'var(--lp-badge-pink-bg)',
+    color: 'var(--lp-badge-pink-text)',
+    border: '1px solid var(--lp-badge-pink-border)',
   },
   orange: {
-    backgroundColor: 'rgba(253,186,116,0.12)',
-    color: '#FED7AA',
-    border: '1px solid rgba(253,186,116,0.2)',
+    backgroundColor: 'var(--lp-badge-orange-bg)',
+    color: 'var(--lp-badge-orange-text)',
+    border: '1px solid var(--lp-badge-orange-border)',
   },
   blue: {
-    backgroundColor: 'rgba(147,197,253,0.12)',
-    color: '#93C5FD',
-    border: '1px solid rgba(147,197,253,0.2)',
+    backgroundColor: 'var(--lp-badge-blue-bg)',
+    color: 'var(--lp-badge-blue-text)',
+    border: '1px solid var(--lp-badge-blue-border)',
   },
 }
 
@@ -253,9 +253,9 @@ export function FeaturesSection() {
                   </span>
                   <div
                     className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: 'rgba(167,139,250,0.12)' }}
+                    style={{ backgroundColor: 'var(--lp-card-icon-bg)' }}
                   >
-                    <Icon className="h-4 w-4" style={{ color: 'var(--lp-iris)' }} />
+                    <Icon className="h-4 w-4" style={{ color: 'var(--lp-card-icon-color)' }} />
                   </div>
                 </div>
 

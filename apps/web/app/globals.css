@@ -212,23 +212,37 @@ body {
 
 /* Dark (default — matches app's :root convention) */
 :root {
-  --lp-bg: #071A18;
-  --lp-bg-warm: #0D2420;
-  --lp-surface: #102B27;
-  --lp-surface-glass: rgba(13, 36, 32, 0.76);
+  --lp-bg: #080A09;
+  --lp-bg-warm: #0C0F0E;
+  --lp-surface: #111815;
+  --lp-surface-glass: rgba(11, 14, 13, 0.78);
   --lp-ink: #E8DDD0;
   --lp-ink-2: #CDBFB1;
   --lp-body: #B5A99A;
   --lp-muted: #7A6F63;
-  --lp-border: rgba(232, 221, 208, 0.1);
+  --lp-border: rgba(232, 221, 208, 0.09);
   --lp-iris: #A78BFA;
   --lp-cyan: #22D3EE;
   --lp-blue: #93C5FD;
   --lp-coral: #F87171;
   --lp-glow-iris: rgba(167, 139, 250, 0.38);
   --lp-glow-cyan: rgba(34, 211, 238, 0.25);
-  --lp-footer-bg: #030D0B;
-  --lp-footer-surface: #071A18;
+  --lp-footer-bg: #040605;
+  --lp-footer-surface: #0A1412;
+  /* Bento cards — dark */
+  --lp-badge-pink-bg:    rgba(251, 207, 232, 0.12);
+  --lp-badge-pink-text:  #F9A8D4;
+  --lp-badge-pink-border: rgba(249, 168, 212, 0.18);
+  --lp-badge-orange-bg:   rgba(253, 186, 116, 0.10);
+  --lp-badge-orange-text: #FED7AA;
+  --lp-badge-orange-border: rgba(253, 186, 116, 0.18);
+  --lp-badge-blue-bg:    rgba(147, 197, 253, 0.10);
+  --lp-badge-blue-text:  #93C5FD;
+  --lp-badge-blue-border: rgba(147, 197, 253, 0.18);
+  --lp-card-icon-bg:    rgba(167, 139, 250, 0.12);
+  --lp-card-icon-color: var(--lp-iris);
+  --lp-preview-bg:      rgba(8, 12, 11, 0.65);
+  --lp-code-preview-bg: rgba(8, 12, 11, 0.75);
 }
 
 /* Light override */
@@ -250,6 +264,20 @@ body {
   --lp-glow-cyan: rgba(103, 232, 249, 0.35);
   --lp-footer-bg: #071A18;
   --lp-footer-surface: #0D3D3A;
+  /* Bento cards — light: deep saturated tones for contrast on sand */
+  --lp-badge-pink-bg:    rgba(190, 24, 93, 0.08);
+  --lp-badge-pink-text:  #9D174D;
+  --lp-badge-pink-border: rgba(190, 24, 93, 0.16);
+  --lp-badge-orange-bg:   rgba(154, 52, 18, 0.07);
+  --lp-badge-orange-text: #7C2D12;
+  --lp-badge-orange-border: rgba(154, 52, 18, 0.15);
+  --lp-badge-blue-bg:    rgba(29, 78, 216, 0.07);
+  --lp-badge-blue-text:  #1E40AF;
+  --lp-badge-blue-border: rgba(29, 78, 216, 0.15);
+  --lp-card-icon-bg:    rgba(13, 61, 58, 0.09);
+  --lp-card-icon-color: var(--lp-ink);
+  --lp-preview-bg:      rgba(13, 61, 58, 0.88);
+  --lp-code-preview-bg: rgba(13, 61, 58, 0.90);
 }
 
 /* ─── Landing Animations ───────────────────────────────────────────────────── */
@@ -352,6 +380,34 @@ body {
 .lp-reveal.is-visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* ─── Auth Form Inputs ─────────────────────────────────────────────────────── */
+
+.lp-auth-input {
+  width: 100%;
+  background-color: var(--lp-bg);
+  color: var(--lp-ink);
+  border: 1.5px solid var(--lp-border);
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  font-family: var(--font-body-lp, var(--font-sans)), system-ui, sans-serif;
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  -webkit-appearance: none;
+}
+
+.lp-auth-input::placeholder { color: var(--lp-muted); }
+
+.lp-auth-input:focus {
+  border-color: var(--lp-iris);
+  box-shadow: 0 0 0 3px var(--lp-glow-iris);
+}
+
+.lp-auth-input.has-error {
+  border-color: var(--lp-coral);
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.18);
 }
 
 /* Bento grid responsive spans */
