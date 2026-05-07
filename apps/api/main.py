@@ -1,0 +1,33 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from core.database import create_db_and_tables
+from routers import auth, workspaces, notes, pdfs, links, embeddings, chat
+
+app = FastAPI(title="NexusNote API", version="0.1.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(auth.router)
+app.include_router(workspaces.router)
+app.include_router(notes.router)
+app.include_router(pdfs.router)
+app.include_router(links.router)
+app.include_router(embeddings.router)
+app.include_router(chat.router)
+
+
+@app.on_event("startup")
+async def on_startup() -> None:
+    await create_db_and_tables()
+
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
