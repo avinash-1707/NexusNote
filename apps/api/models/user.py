@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Optional
 
 from sqlmodel import Field, SQLModel
@@ -11,4 +11,4 @@ class User(SQLModel, table=True):
     email: str = Field(unique=True, index=True)
     hashed_password: Optional[str] = Field(default=None)
     google_id: Optional[str] = Field(default=None, unique=True, index=True)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=datetime.utcnow)

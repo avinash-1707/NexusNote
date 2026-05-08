@@ -87,6 +87,7 @@ nexusnote/
 
 - Node.js 20+
 - Python 3.11+
+- [uv](https://docs.astral.sh/uv/) (Python package manager)
 - A [Neon](https://neon.tech) PostgreSQL database with the `pgvector` extension enabled
 - [Cloudinary](https://cloudinary.com) account
 - [Google AI Studio](https://aistudio.google.com) API key (Gemini)
@@ -108,9 +109,7 @@ npm install          # installs web deps via Turborepo workspaces
 
 ```bash
 cd apps/api
-python -m venv .venv
-source .venv/bin/activate      # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+uv sync
 cp .env.example .env
 ```
 
@@ -135,13 +134,13 @@ GEMINI_API_KEY=
 Run the database migration:
 
 ```bash
-alembic upgrade head
+uv run alembic upgrade head
 ```
 
 Start the API:
 
 ```bash
-uvicorn main:app --reload
+uv run uvicorn main:app --reload
 # API available at http://localhost:8000
 # Docs at http://localhost:8000/docs
 ```

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
@@ -70,7 +70,7 @@ async def rename_workspace(
 ):
     workspace = await _get_owned_workspace(workspace_id, current_user.id, db)
     workspace.name = body.name
-    workspace.updated_at = datetime.now(timezone.utc)
+    workspace.updated_at = datetime.utcnow()
     db.add(workspace)
     await db.commit()
     await db.refresh(workspace)

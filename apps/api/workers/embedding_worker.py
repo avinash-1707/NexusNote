@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlmodel import select
 
@@ -14,7 +14,7 @@ async def run_embedding_job(job_id: int) -> None:
             return
 
         job.status = "processing"
-        job.updated_at = datetime.now(timezone.utc)
+        job.updated_at = datetime.utcnow()
         db.add(job)
         await db.commit()
 
@@ -27,7 +27,7 @@ async def run_embedding_job(job_id: int) -> None:
         except Exception:
             job.status = "error"
 
-        job.updated_at = datetime.now(timezone.utc)
+        job.updated_at = datetime.utcnow()
         db.add(job)
         await db.commit()
 

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
@@ -86,7 +86,7 @@ async def update_note(
     if body.content_md is not None:
         note.content_md = body.content_md
 
-    note.updated_at = datetime.now(timezone.utc)
+    note.updated_at = datetime.utcnow()
     db.add(note)
     await db.commit()
     await db.refresh(note)

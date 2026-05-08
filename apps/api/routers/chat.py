@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
@@ -81,7 +81,7 @@ async def rename_session(
     await _get_owned_workspace(workspace_id, current_user.id, db)
     session = await _get_session(session_id, workspace_id, db)
     session.title = body.title
-    session.updated_at = datetime.now(timezone.utc)
+    session.updated_at = datetime.utcnow()
     db.add(session)
     await db.commit()
     await db.refresh(session)
