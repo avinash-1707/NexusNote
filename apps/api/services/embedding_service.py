@@ -1,9 +1,9 @@
 import re
 from typing import Literal
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from sqlalchemy import text
-from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from core.config import settings
@@ -13,8 +13,17 @@ ResourceType = Literal["note", "pdf", "link"]
 
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
-EMBEDDING_MODEL = "models/text-embedding-004"
+EMBEDDING_MODEL = "text-embedding-004"
 VECTOR_DIM = 768
+
+_client: genai.Client | None = None
+
+
+def _get_client() -> genai.Client:
+    global _client
+    if _client is None:
+        _client = genai.Client(api_key=settings.gemini_api_key)
+    return _client
 
 
 def _tokenize_approx(text: str) -> list[str]:
@@ -41,18 +50,18 @@ async def embed_and_store(
     text: str,
     db: AsyncSession,
 ) -> None:
-    genai.configure(api_key=settings.gemini_api_key)
+    client = _get_client()
     chunks = chunk_text(text)
 
     await delete_resource_chunks(workspace_id, resource_type, resource_id, db)
 
     for idx, chunk in enumerate(chunks):
-        result = genai.embed_content(
+        result = await client.aio.models.embed_content(
             model=EMBEDDING_MODEL,
-            content=chunk,
-            task_type="retrieval_document",
+            contents=chunk,
+            config=types.EmbedContentConfig(task_type="RETRIEVAL_DOCUMENT"),
         )
-        vector = result["embedding"]
+        vector = result.embeddings[0].values
         vector_literal = f"[{','.join(str(v) for v in vector)}]"
 
         await db.exec(
@@ -63,15 +72,14 @@ async def embed_and_store(
                 VALUES
                   (:workspace_id, :resource_type, :resource_id, :chunk_index, :content, :embedding::vector)
                 """
-            ),
-            {
-                "workspace_id": workspace_id,
-                "resource_type": resource_type,
-                "resource_id": resource_id,
-                "chunk_index": idx,
-                "content": chunk,
-                "embedding": vector_literal,
-            },
+            ).bindparams(
+                workspace_id=workspace_id,
+                resource_type=resource_type,
+                resource_id=resource_id,
+                chunk_index=idx,
+                content=chunk,
+                embedding=vector_literal,
+            )
         )
 
     await db.commit()
@@ -91,12 +99,11 @@ async def delete_resource_chunks(
               AND resource_type = :resource_type
               AND resource_id = :resource_id
             """
-        ),
-        {
-            "workspace_id": workspace_id,
-            "resource_type": resource_type,
-            "resource_id": resource_id,
-        },
+        ).bindparams(
+            workspace_id=workspace_id,
+            resource_type=resource_type,
+            resource_id=resource_id,
+        )
     )
     await db.commit()
 
@@ -107,13 +114,13 @@ async def similarity_search(
     top_k: int = 5,
     db: AsyncSession = None,
 ) -> list[str]:
-    genai.configure(api_key=settings.gemini_api_key)
-    result = genai.embed_content(
+    client = _get_client()
+    result = await client.aio.models.embed_content(
         model=EMBEDDING_MODEL,
-        content=query,
-        task_type="retrieval_query",
+        contents=query,
+        config=types.EmbedContentConfig(task_type="RETRIEVAL_QUERY"),
     )
-    vector = result["embedding"]
+    vector = result.embeddings[0].values
     vector_literal = f"[{','.join(str(v) for v in vector)}]"
 
     rows = await db.exec(
@@ -125,11 +132,10 @@ async def similarity_search(
             ORDER BY embedding <=> :query_vec::vector
             LIMIT :top_k
             """
-        ),
-        {
-            "workspace_id": workspace_id,
-            "query_vec": vector_literal,
-            "top_k": top_k,
-        },
+        ).bindparams(
+            workspace_id=workspace_id,
+            query_vec=vector_literal,
+            top_k=top_k,
+        )
     )
     return [row[0] for row in rows]

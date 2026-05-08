@@ -1,7 +1,7 @@
+from google import genai
+from google.genai import types
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
-
-import google.generativeai as genai
 
 from core.config import settings
 from models.chat import ChatMessage
@@ -13,6 +13,15 @@ SYSTEM_PROMPT = (
     "provided context. If the answer is not in the context, say so clearly. "
     "Do not make up information."
 )
+
+_client: genai.Client | None = None
+
+
+def _get_client() -> genai.Client:
+    global _client
+    if _client is None:
+        _client = genai.Client(api_key=settings.gemini_api_key)
+    return _client
 
 
 async def answer_query(
@@ -29,23 +38,25 @@ async def answer_query(
         .order_by(ChatMessage.created_at)
         .limit(20)
     )
-    history = history_result.all()
+    history_msgs = history_result.all()
 
     context = "\n\n---\n\n".join(chunks) if chunks else "No relevant content found."
     user_message = f"Context:\n{context}\n\nQuestion: {query}"
 
-    genai.configure(api_key=settings.gemini_api_key)
-    model = genai.GenerativeModel(
-        model_name=CHAT_MODEL,
-        system_instruction=SYSTEM_PROMPT,
+    gemini_history = [
+        types.Content(
+            role="user" if msg.role == "user" else "model",
+            parts=[types.Part(text=msg.content)],
+        )
+        for msg in history_msgs
+    ]
+
+    client = _get_client()
+    chat = client.aio.chats.create(
+        model=CHAT_MODEL,
+        config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT),
+        history=gemini_history,
     )
-
-    gemini_history = []
-    for msg in history:
-        role = "user" if msg.role == "user" else "model"
-        gemini_history.append({"role": role, "parts": [msg.content]})
-
-    chat = model.start_chat(history=gemini_history)
-    response = await chat.send_message_async(user_message)
+    response = await chat.send_message(user_message)
 
     return response.text
