@@ -1,9 +1,13 @@
+import asyncio
+import logging
 from datetime import datetime
 
 from sqlmodel import select
 
 from core.database import AsyncSessionLocal
 from models.embedding import EmbeddingJob
+
+logger = logging.getLogger(__name__)
 
 
 async def run_embedding_job(job_id: int) -> None:
@@ -14,43 +18,93 @@ async def run_embedding_job(job_id: int) -> None:
             return
 
         job.status = "processing"
+        job.error_message = None
         job.updated_at = datetime.utcnow()
         db.add(job)
         await db.commit()
 
         try:
-            text = await _get_resource_text(job, db)
+            title, text = await _get_resource_text(job, db)
             from services.embedding_service import embed_and_store
-            await embed_and_store(job.workspace_id, job.resource_type, job.resource_id, text, db)
+            await embed_and_store(
+                job.workspace_id,
+                job.resource_type,
+                job.resource_id,
+                text,
+                title,
+                db,
+            )
 
             job.status = "done"
-        except Exception:
+            job.error_message = None
+        except Exception as exc:
+            logger.exception("Embedding job %s failed", job_id)
             job.status = "error"
+            job.error_message = _build_error_message(job, exc)
 
         job.updated_at = datetime.utcnow()
         db.add(job)
         await db.commit()
 
 
-async def _get_resource_text(job: EmbeddingJob, db) -> str:
+async def _get_resource_text(job: EmbeddingJob, db) -> tuple[str | None, str]:
     from sqlmodel import select
 
     if job.resource_type == "note":
         from models.note import Note
         result = await db.exec(select(Note).where(Note.id == job.resource_id))
         note = result.first()
-        return note.content_md if note else ""
+        if not note:
+            raise ValueError(f"Note {job.resource_id} was not found.")
+        if not note.content_md.strip():
+            raise ValueError(
+                f"Note {job.resource_id} has no content to embed. Add text before starting embeddings."
+            )
+        return note.title, note.content_md
 
     if job.resource_type == "pdf":
         from models.pdf import PDF
         result = await db.exec(select(PDF).where(PDF.id == job.resource_id))
         pdf = result.first()
-        return pdf.extracted_text if pdf else ""
+        if not pdf:
+            raise ValueError(f"PDF {job.resource_id} was not found.")
+        if not pdf.extracted_text.strip():
+            raise ValueError(
+                f"PDF {job.resource_id} has no extracted text yet. Finish text extraction before starting embeddings."
+            )
+        return pdf.title, pdf.extracted_text
 
     if job.resource_type == "link":
         from models.link import Link
         result = await db.exec(select(Link).where(Link.id == job.resource_id))
         link = result.first()
-        return link.scraped_text if link else ""
+        if not link:
+            raise ValueError(f"Link {job.resource_id} was not found.")
+        if not link.scraped_text.strip():
+            raise ValueError(
+                f"Link {job.resource_id} has no scraped content yet. Refresh the link content before starting embeddings."
+            )
+        return link.title, link.scraped_text
 
-    return ""
+    raise ValueError(f"Unsupported resource type '{job.resource_type}'.")
+
+
+def _build_error_message(job: EmbeddingJob, exc: Exception) -> str:
+    if isinstance(exc, ValueError):
+        return str(exc)
+    if isinstance(exc, asyncio.TimeoutError):
+        return "Embedding timed out while waiting for Gemini to return the vector."
+
+    message = str(exc).strip()
+    if "api key" in message.lower():
+        return "Embedding failed because the Gemini API key is missing or invalid."
+    if "timeout" in message.lower():
+        return "Embedding timed out while waiting for the embedding provider to respond."
+    if "429" in message or "rate limit" in message.lower():
+        return "Embedding was rate-limited by the provider. Retry in a moment."
+    if "403" in message or "permission" in message.lower():
+        return "Embedding was rejected by the provider due to permission or access restrictions."
+
+    return (
+        f"Embedding failed for {job.resource_type} {job.resource_id} due to an unexpected backend error."
+    )

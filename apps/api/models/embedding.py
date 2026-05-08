@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Literal
+from typing import Optional
 
 from sqlmodel import Field, SQLModel
 
@@ -12,5 +12,6 @@ class EmbeddingJob(SQLModel, table=True):
     resource_id: int
     workspace_id: int = Field(foreign_key="workspaces.id", index=True)
     status: str = Field(default="pending")  # pending | processing | done | error
+    error_message: Optional[str] = Field(default=None)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

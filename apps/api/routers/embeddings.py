@@ -1,11 +1,9 @@
-import asyncio
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
-from sse_starlette.sse import EventSourceResponse
 
 from core.database import get_db
 from core.dependencies import get_current_user
@@ -24,6 +22,11 @@ class EmbedRequest(BaseModel):
 class EmbedResponse(BaseModel):
     job_id: int
     status: str
+
+
+class EmbedStatusResponse(BaseModel):
+    status: str
+    error_message: str | None = None
 
 
 @router.post("", response_model=EmbedResponse)
@@ -60,22 +63,9 @@ async def embedding_status_stream(
     db: AsyncSession = Depends(get_db),
 ):
     await _get_owned_workspace(workspace_id, current_user.id, db)
+    result = await db.exec(select(EmbeddingJob).where(EmbeddingJob.id == job_id))
+    job = result.first()
+    if not job:
+        raise HTTPException(status_code=404, detail="job not found")
 
-    async def event_generator():
-        while True:
-            result = await db.exec(
-                select(EmbeddingJob).where(EmbeddingJob.id == job_id)
-            )
-            job = result.first()
-            if not job:
-                yield {"event": "error", "data": "job not found"}
-                break
-
-            yield {"event": "status", "data": job.status}
-
-            if job.status in ("done", "error"):
-                break
-
-            await asyncio.sleep(1)
-
-    return EventSourceResponse(event_generator())
+    return EmbedStatusResponse(status=job.status, error_message=job.error_message)

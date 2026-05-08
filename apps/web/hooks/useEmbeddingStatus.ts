@@ -1,44 +1,67 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getToken } from '@/lib/auth'
+import { apiFetch } from '@/lib/api'
 
 type EmbedStatus = 'idle' | 'pending' | 'processing' | 'done' | 'error'
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+type EmbedStatusResponse = { status: Exclude<EmbedStatus, 'idle'> }
 
 export function useEmbeddingStatus(workspaceId: number, jobId: number | null) {
   const [status, setStatus] = useState<EmbedStatus>('idle')
-  const esRef = useRef<EventSource | null>(null)
 
   useEffect(() => {
-    if (!jobId) return
+    if (!jobId) {
+      setStatus('idle')
+      return
+    }
 
     setStatus('pending')
 
     const token = getToken()
-    const url = `${API_URL}/workspaces/${workspaceId}/embeddings/status/${jobId}?token=${token}`
-    const es = new EventSource(url)
-    esRef.current = es
-
-    es.addEventListener('status', (e: MessageEvent) => {
-      const s = e.data as EmbedStatus
-      setStatus(s)
-      if (s === 'done' || s === 'error') {
-        es.close()
-        esRef.current = null
-      }
-    })
-
-    es.onerror = () => {
+    if (!token) {
       setStatus('error')
-      es.close()
-      esRef.current = null
+      return
     }
 
+    let cancelled = false
+    let intervalId: number | null = null
+
+    const pollStatus = async () => {
+      try {
+        const response = await apiFetch<EmbedStatusResponse>(
+          `/workspaces/${workspaceId}/embeddings/status/${jobId}`,
+          { token },
+        )
+        if (cancelled) return
+
+        setStatus(response.status)
+
+        if (response.status === 'done' || response.status === 'error') {
+          if (intervalId !== null) {
+            window.clearInterval(intervalId)
+          }
+        }
+      } catch {
+        if (!cancelled) {
+          setStatus('error')
+        }
+        if (intervalId !== null) {
+          window.clearInterval(intervalId)
+        }
+      }
+    }
+
+    void pollStatus()
+    intervalId = window.setInterval(() => {
+      void pollStatus()
+    }, 3000)
+
     return () => {
-      es.close()
-      esRef.current = null
+      cancelled = true
+      if (intervalId !== null) {
+        window.clearInterval(intervalId)
+      }
     }
   }, [jobId, workspaceId])
 

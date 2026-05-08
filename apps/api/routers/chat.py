@@ -135,8 +135,15 @@ async def send_message(
     await db.commit()
     await db.refresh(user_msg)
 
-    from services.rag_service import answer_query
-    reply = await answer_query(workspace_id, body.content, session_id, db)
+    from services.rag_service import ChatQuotaExceededError, answer_query
+    try:
+        reply = await answer_query(workspace_id, body.content, session_id, db)
+    except ChatQuotaExceededError as exc:
+        raise HTTPException(
+            status_code=429,
+            detail=exc.message,
+            headers={"Retry-After": str(exc.retry_after_seconds)} if exc.retry_after_seconds else None,
+        )
 
     assistant_msg = ChatMessage(session_id=session_id, role="assistant", content=reply)
     db.add(assistant_msg)

@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     cloudinary_api_secret: str = ""
 
     gemini_api_key: str = ""
+    gemini_chat_models: str = "gemini-2.5-flash-lite,gemini-2.0-flash-lite,gemini-2.0-flash"
 
     class Config:
         env_file = ".env"
