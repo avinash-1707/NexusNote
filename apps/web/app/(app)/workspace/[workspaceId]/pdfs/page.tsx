@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { Eye, FileText, Trash2, Upload } from 'lucide-react'
 import { useCreateEmbedding, useDeletePDF, usePDFs, useUploadPDF } from '@/lib/queries'
 import { useEmbeddingStatus } from '@/hooks/useEmbeddingStatus'
@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog'
 
 export default function PDFsPage() {
   const params = useParams<{ workspaceId: string }>()
@@ -146,7 +147,9 @@ function PDFCard({
   workspaceId: number
   onView: () => void
 }) {
+  const router = useRouter()
   const [jobId, setJobId] = useState<number | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
   const deletePDF = useDeletePDF(workspaceId)
   const createEmbedding = useCreateEmbedding(workspaceId)
   const embedStatus = useEmbeddingStatus(workspaceId, jobId)
@@ -157,43 +160,58 @@ function PDFCard({
   }
 
   return (
-    <div
-      className="p-4 rounded-2xl lp-glass group flex flex-col gap-3 transition-all hover:brightness-110"
-      style={{ border: '1px solid var(--lp-border)' }}
-    >
-      <div className="flex items-start gap-2">
-        <div
-          className="h-8 w-8 rounded-xl flex items-center justify-center shrink-0"
-          style={{ backgroundColor: 'rgba(167,139,250,0.08)', border: '1px solid var(--lp-border)' }}
-        >
-          <FileText className="h-4 w-4" style={{ color: 'var(--lp-muted)' }} />
+    <>
+      <div
+        className="p-4 rounded-2xl lp-glass group flex flex-col gap-3 transition-all hover:brightness-110"
+        style={{ border: '1px solid var(--lp-border)' }}
+      >
+        <div className="flex items-start gap-2">
+          <div
+            className="h-8 w-8 rounded-xl flex items-center justify-center shrink-0"
+            style={{ backgroundColor: 'rgba(167,139,250,0.08)', border: '1px solid var(--lp-border)' }}
+          >
+            <FileText className="h-4 w-4" style={{ color: 'var(--lp-muted)' }} />
+          </div>
+          <p className="text-sm font-medium lp-display leading-snug line-clamp-2 flex-1" style={{ color: 'var(--lp-ink)' }}>
+            {pdf.title}
+          </p>
         </div>
-        <p className="text-sm font-medium lp-display leading-snug line-clamp-2 flex-1" style={{ color: 'var(--lp-ink)' }}>
-          {pdf.title}
-        </p>
+
+        <div className="flex items-center justify-between gap-2 mt-auto">
+          <EmbeddingStatus status={embedStatus} onEmbed={handleEmbed} />
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              onClick={onView}
+              title="View PDF"
+              className="h-7 w-7 flex items-center justify-center rounded-lg transition-colors hover:opacity-70"
+              style={{ color: 'var(--lp-body)' }}
+            >
+              <Eye className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={() => setConfirmOpen(true)}
+              title="Delete"
+              className="h-7 w-7 flex items-center justify-center rounded-lg transition-colors hover:opacity-70"
+              style={{ color: 'var(--state-error)' }}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div className="flex items-center justify-between gap-2 mt-auto">
-        <EmbeddingStatus status={embedStatus} onEmbed={handleEmbed} />
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={onView}
-            title="View PDF"
-            className="h-7 w-7 flex items-center justify-center rounded-lg transition-colors hover:opacity-70"
-            style={{ color: 'var(--lp-body)' }}
-          >
-            <Eye className="h-3.5 w-3.5" />
-          </button>
-          <button
-            onClick={() => deletePDF.mutate(pdf.id)}
-            title="Delete"
-            className="h-7 w-7 flex items-center justify-center rounded-lg transition-colors hover:opacity-70"
-            style={{ color: 'var(--state-error)' }}
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      </div>
-    </div>
+      <DeleteConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Delete PDF"
+        description="This PDF and its indexed content will be permanently deleted. This cannot be undone."
+        onConfirm={async () => {
+          await deletePDF.mutateAsync(pdf.id)
+          setConfirmOpen(false)
+          router.refresh()
+        }}
+        isPending={deletePDF.isPending}
+      />
+    </>
   )
 }

@@ -165,7 +165,10 @@ export function useDeleteNote(workspaceId: number) {
         method: 'DELETE',
         token: token!,
       }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: qk.notes(workspaceId) }),
+    onSuccess: (_, noteId) => {
+      qc.invalidateQueries({ queryKey: qk.notes(workspaceId) })
+      qc.removeQueries({ queryKey: qk.note(workspaceId, noteId) })
+    },
   })
 }
 

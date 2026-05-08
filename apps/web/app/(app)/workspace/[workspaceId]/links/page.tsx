@@ -1,11 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { ExternalLink, Link2, Trash2 } from 'lucide-react'
 import { useCreateEmbedding, useDeleteLink, useLinks, useSaveLink } from '@/lib/queries'
 import { useEmbeddingStatus } from '@/hooks/useEmbeddingStatus'
 import { EmbeddingStatus } from '@/components/EmbeddingStatus'
+import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog'
 import type { Link as LinkType } from '@/lib/types'
 
 export default function LinksPage() {
@@ -95,7 +96,9 @@ export default function LinksPage() {
 }
 
 function LinkItem({ link, workspaceId }: { link: LinkType; workspaceId: number }) {
+  const router = useRouter()
   const [jobId, setJobId] = useState<number | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
   const deleteLink = useDeleteLink(workspaceId)
   const createEmbedding = useCreateEmbedding(workspaceId)
   const embedStatus = useEmbeddingStatus(workspaceId, jobId)
@@ -106,47 +109,62 @@ function LinkItem({ link, workspaceId }: { link: LinkType; workspaceId: number }
   }
 
   return (
-    <div
-      className="flex items-center gap-4 px-4 py-3 rounded-2xl lp-glass transition-all hover:brightness-110 group"
-      style={{ border: '1px solid var(--lp-border)' }}
-    >
+    <>
       <div
-        className="h-8 w-8 rounded-xl flex items-center justify-center shrink-0"
-        style={{ backgroundColor: 'rgba(167,139,250,0.08)', border: '1px solid var(--lp-border)' }}
+        className="flex items-center gap-4 px-4 py-3 rounded-2xl lp-glass transition-all hover:brightness-110 group"
+        style={{ border: '1px solid var(--lp-border)' }}
       >
-        <Link2 className="h-3.5 w-3.5" style={{ color: 'var(--lp-muted)' }} />
-      </div>
+        <div
+          className="h-8 w-8 rounded-xl flex items-center justify-center shrink-0"
+          style={{ backgroundColor: 'rgba(167,139,250,0.08)', border: '1px solid var(--lp-border)' }}
+        >
+          <Link2 className="h-3.5 w-3.5" style={{ color: 'var(--lp-muted)' }} />
+        </div>
 
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium lp-display truncate" style={{ color: 'var(--lp-ink)' }}>
-          {link.title || 'Untitled'}
-        </p>
-        <p className="text-xs truncate mt-0.5" style={{ color: 'var(--lp-muted)' }}>{link.url}</p>
-      </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium lp-display truncate" style={{ color: 'var(--lp-ink)' }}>
+            {link.title || 'Untitled'}
+          </p>
+          <p className="text-xs truncate mt-0.5" style={{ color: 'var(--lp-muted)' }}>{link.url}</p>
+        </div>
 
-      <div className="flex items-center gap-3 shrink-0">
-        <EmbeddingStatus status={embedStatus} onEmbed={handleEmbed} />
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <a
-            href={link.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Open link"
-            className="h-7 w-7 flex items-center justify-center rounded-lg transition-colors hover:opacity-70"
-            style={{ color: 'var(--lp-body)' }}
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-          </a>
-          <button
-            onClick={() => deleteLink.mutate(link.id)}
-            title="Delete"
-            className="h-7 w-7 flex items-center justify-center rounded-lg transition-colors hover:opacity-70"
-            style={{ color: 'var(--state-error)' }}
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
+        <div className="flex items-center gap-3 shrink-0">
+          <EmbeddingStatus status={embedStatus} onEmbed={handleEmbed} />
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <a
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Open link"
+              className="h-7 w-7 flex items-center justify-center rounded-lg transition-colors hover:opacity-70"
+              style={{ color: 'var(--lp-body)' }}
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+            <button
+              onClick={() => setConfirmOpen(true)}
+              title="Delete"
+              className="h-7 w-7 flex items-center justify-center rounded-lg transition-colors hover:opacity-70"
+              style={{ color: 'var(--state-error)' }}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      <DeleteConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Delete Link"
+        description="This link and its indexed content will be permanently deleted. This cannot be undone."
+        onConfirm={async () => {
+          await deleteLink.mutateAsync(link.id)
+          setConfirmOpen(false)
+          router.refresh()
+        }}
+        isPending={deleteLink.isPending}
+      />
+    </>
   )
 }

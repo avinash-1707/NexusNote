@@ -30,6 +30,7 @@ import {
   useWorkspaces,
 } from '@/lib/queries'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { WorkspaceCreateModal } from '@/components/WorkspaceCreateModal'
 import {
@@ -53,6 +54,7 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
 
   const [showCreateWs, setShowCreateWs] = useState(false)
   const [renaming, setRenaming] = useState<{ type: 'note' | 'session'; id: number; current: string } | null>(null)
+  const [notePendingDelete, setNotePendingDelete] = useState<{ id: number; title: string } | null>(null)
 
   const { data: workspaces = [] } = useWorkspaces()
   const currentWorkspace = workspaces.find((w) => w.id === workspaceId)
@@ -279,7 +281,7 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
                     href={`/workspace/${workspaceId}/notes/${note.id}`}
                     isActive={isActive}
                     icon={<FileText className="h-3.5 w-3.5 shrink-0" />}
-                    onDelete={() => deleteNote.mutate(note.id)}
+                    onDelete={() => setNotePendingDelete({ id: note.id, title: note.title || 'Untitled' })}
                     onRename={() =>
                       setRenaming({ type: 'note', id: note.id, current: note.title })
                     }
@@ -318,6 +320,24 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
           onClose={() => setRenaming(null)}
         />
       )}
+
+      <DeleteConfirmDialog
+        open={!!notePendingDelete}
+        onOpenChange={(open) => !open && setNotePendingDelete(null)}
+        title="Delete Note"
+        description={`"${notePendingDelete?.title ?? 'Untitled'}" will be permanently deleted. This cannot be undone.`}
+        onConfirm={async () => {
+          if (!notePendingDelete) return
+          const deletedId = notePendingDelete.id
+          await deleteNote.mutateAsync(deletedId)
+          setNotePendingDelete(null)
+          if (pathname.includes(`/notes/${deletedId}`)) {
+            router.replace(`/workspace/${workspaceId}/notes`)
+          }
+          router.refresh()
+        }}
+        isPending={deleteNote.isPending}
+      />
     </div>
   )
 }
