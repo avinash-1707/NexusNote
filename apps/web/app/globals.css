@@ -331,6 +331,26 @@ body {
   50%       { box-shadow: 0 0 0 8px transparent; }
 }
 
+@keyframes lp-orb-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes lp-orb-spin-rev {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+
+@keyframes lp-dot-orbit {
+  from { transform: rotate(0deg) translateX(88px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(88px) rotate(-360deg); }
+}
+
+.lp-orb-spin     { animation: lp-orb-spin     20s linear infinite; }
+.lp-orb-spin-rev { animation: lp-orb-spin-rev 14s linear infinite; }
+.lp-orb-spin-sm  { animation: lp-orb-spin      8s linear infinite; }
+.lp-dot-orbit    { animation: lp-dot-orbit     20s linear infinite; }
+
 /* ─── Landing Utility Classes ──────────────────────────────────────────────── */
 
 .lp-root {

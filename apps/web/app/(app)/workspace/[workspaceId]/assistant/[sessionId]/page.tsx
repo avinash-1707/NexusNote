@@ -3,7 +3,6 @@
 import { useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { Send, Brain } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 import { useChatMessages, useSendMessage, useWorkspaces } from '@/lib/queries'
@@ -51,13 +50,27 @@ export default function ChatSessionPage() {
       style={{ height: 'calc(100vh - 56px)', margin: '-20px -24px' }}
     >
       {/* Header */}
-      <div className="flex items-center gap-3 px-6 py-3 border-b border-border-default shrink-0 bg-bg-base">
-        <Brain className="h-4 w-4 text-accent-primary shrink-0" />
-        <span className="text-sm font-medium text-text-primary">AI Assistant</span>
-        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded border border-border-subtle bg-bg-surface">
-          <span className="h-1.5 w-1.5 rounded-full bg-accent-primary inline-block" />
-          <span className="text-xs font-mono text-text-muted">
-            Searching: {workspaceName}
+      <div
+        className="flex items-center gap-3 px-6 py-3 shrink-0 lp-glass"
+        style={{ borderBottom: '1px solid var(--lp-border)' }}
+      >
+        <Brain className="h-4 w-4 shrink-0" style={{ color: 'var(--lp-iris)' }} />
+        <span className="text-sm font-semibold lp-display" style={{ color: 'var(--lp-ink)' }}>
+          AI Assistant
+        </span>
+        <div
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+          style={{
+            backgroundColor: 'rgba(167,139,250,0.1)',
+            border: '1px solid rgba(167,139,250,0.2)',
+          }}
+        >
+          <span
+            className="h-1.5 w-1.5 rounded-full inline-block"
+            style={{ backgroundColor: 'var(--lp-iris)' }}
+          />
+          <span className="text-xs font-mono" style={{ color: 'var(--lp-iris)' }}>
+            {workspaceName}
           </span>
         </div>
       </div>
@@ -67,16 +80,22 @@ export default function ChatSessionPage() {
         <div className="px-6 py-6 space-y-4 max-w-2xl mx-auto">
           {isLoading ? (
             <div className="flex justify-center py-8">
-              <div className="h-4 w-4 rounded-full border-2 border-border-default border-t-accent-primary animate-spin" />
+              <div
+                className="h-4 w-4 rounded-full border-2 animate-spin"
+                style={{ borderColor: 'var(--lp-border)', borderTopColor: 'var(--lp-iris)' }}
+              />
             </div>
           ) : messages.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-sm text-text-muted">
+            <div className="text-center py-12 space-y-2">
+              <p className="text-sm" style={{ color: 'var(--lp-muted)' }}>
                 Ask anything about your workspace content.
               </p>
-              <p className="text-xs text-text-muted mt-1">
+              <p className="text-xs" style={{ color: 'var(--lp-muted)' }}>
                 Press{' '}
-                <kbd className="px-1.5 py-0.5 rounded border border-border-default font-mono text-[10px] bg-bg-surface">
+                <kbd
+                  className="px-1.5 py-0.5 rounded font-mono text-[10px]"
+                  style={{ border: '1px solid var(--lp-border)', color: 'var(--lp-body)' }}
+                >
                   Enter
                 </kbd>{' '}
                 to send
@@ -91,11 +110,14 @@ export default function ChatSessionPage() {
             >
               <div
                 className={cn(
-                  'max-w-[80%] rounded-lg px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap',
-                  msg.role === 'user'
-                    ? 'bg-accent-primary text-white rounded-br-sm'
-                    : 'bg-bg-surface border border-border-default text-text-primary rounded-bl-sm',
+                  'max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap lp-display',
+                  msg.role === 'user' ? 'rounded-br-sm' : 'rounded-bl-sm lp-glass',
                 )}
+                style={
+                  msg.role === 'user'
+                    ? { backgroundColor: 'var(--lp-iris)', color: 'var(--lp-bg)' }
+                    : { border: '1px solid var(--lp-border)', color: 'var(--lp-ink)' }
+                }
               >
                 {msg.content}
               </div>
@@ -104,13 +126,16 @@ export default function ChatSessionPage() {
 
           {sendMessage.isPending && (
             <div className="flex justify-start">
-              <div className="bg-bg-surface border border-border-default rounded-lg rounded-bl-sm px-4 py-3">
-                <div className="flex gap-1 items-center">
+              <div
+                className="rounded-2xl rounded-bl-sm px-4 py-3 lp-glass"
+                style={{ border: '1px solid var(--lp-border)' }}
+              >
+                <div className="flex gap-1.5 items-center">
                   {[0, 1, 2].map((i) => (
                     <div
                       key={i}
-                      className="h-1.5 w-1.5 rounded-full bg-text-muted animate-pulse"
-                      style={{ animationDelay: `${i * 160}ms` }}
+                      className="h-1.5 w-1.5 rounded-full animate-pulse"
+                      style={{ backgroundColor: 'var(--lp-iris)', animationDelay: `${i * 160}ms` }}
                     />
                   ))}
                 </div>
@@ -123,29 +148,40 @@ export default function ChatSessionPage() {
       </ScrollArea>
 
       {/* Input bar */}
-      <div className="px-6 py-4 border-t border-border-default shrink-0 bg-bg-base">
+      <div
+        className="px-6 py-4 shrink-0 lp-glass"
+        style={{ borderTop: '1px solid var(--lp-border)' }}
+      >
         <div className="max-w-2xl mx-auto flex gap-2 items-end">
           <textarea
             ref={textareaRef}
-            className={cn(
-              'flex-1 resize-none rounded-md border border-border-default bg-bg-surface',
-              'px-3 py-2 text-sm text-text-primary placeholder:text-text-muted',
-              'focus:outline-none focus:ring-1 focus:ring-accent-primary',
-              'min-h-[40px] max-h-32 overflow-y-auto',
-            )}
+            className="flex-1 resize-none rounded-2xl px-4 py-2.5 text-sm min-h-[42px] max-h-32 overflow-y-auto outline-none lp-display"
+            style={{
+              backgroundColor: 'rgba(167,139,250,0.06)',
+              border: '1px solid var(--lp-border)',
+              color: 'var(--lp-ink)',
+            }}
             placeholder="Ask about your workspace…"
             rows={1}
             onKeyDown={handleKeyDown}
             onChange={handleInput}
+            onFocus={(e) => {
+              e.target.style.borderColor = 'rgba(167,139,250,0.45)'
+              e.target.style.boxShadow = '0 0 0 3px rgba(167,139,250,0.12)'
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'var(--lp-border)'
+              e.target.style.boxShadow = 'none'
+            }}
           />
-          <Button
-            size="icon"
+          <button
             onClick={handleSend}
             disabled={sendMessage.isPending}
-            className="shrink-0"
+            className="h-[42px] w-[42px] flex items-center justify-center rounded-full shrink-0 transition-opacity hover:opacity-80 disabled:opacity-50 lp-glow-btn"
+            style={{ backgroundColor: 'var(--lp-ink)', color: 'var(--lp-bg)' }}
           >
             <Send className="h-4 w-4" />
-          </Button>
+          </button>
         </div>
       </div>
     </div>

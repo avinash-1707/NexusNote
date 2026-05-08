@@ -3,12 +3,10 @@
 import { useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Eye, FileText, Trash2, Upload } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { useCreateEmbedding, useDeletePDF, usePDFs, useUploadPDF } from '@/lib/queries'
 import { useEmbeddingStatus } from '@/hooks/useEmbeddingStatus'
 import { EmbeddingStatus } from '@/components/EmbeddingStatus'
 import type { PDF } from '@/lib/types'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -39,22 +37,22 @@ export default function PDFsPage() {
     if (file) handleFile(file)
   }
 
+  const isActive = isDragging || uploadPDF.isPending
+
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-4xl mx-auto">
       {/* Upload zone */}
       <div
-        onClick={() => inputRef.current?.click()}
+        onClick={() => !uploadPDF.isPending && inputRef.current?.click()}
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
-        className={cn(
-          'flex flex-col items-center justify-center h-36 rounded-lg border-2 border-dashed cursor-pointer transition-colors mb-8',
-          uploadPDF.isPending
-            ? 'border-accent-primary bg-accent-subtle cursor-wait'
-            : isDragging
-              ? 'border-accent-primary bg-accent-subtle'
-              : 'border-border-default hover:border-accent-primary hover:bg-bg-surface',
-        )}
+        className="flex flex-col items-center justify-center h-36 rounded-2xl border-2 border-dashed cursor-pointer transition-all mb-8"
+        style={{
+          borderColor: isActive ? 'var(--lp-iris)' : 'var(--lp-border)',
+          backgroundColor: isActive ? 'rgba(167,139,250,0.08)' : 'transparent',
+          cursor: uploadPDF.isPending ? 'wait' : 'pointer',
+        }}
       >
         <input
           ref={inputRef}
@@ -63,27 +61,42 @@ export default function PDFsPage() {
           className="hidden"
           onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
         />
-        <Upload className={cn('h-5 w-5 mb-2 transition-colors', isDragging || uploadPDF.isPending ? 'text-accent-primary' : 'text-text-muted')} />
-        <p className={cn('text-sm font-medium transition-colors', isDragging || uploadPDF.isPending ? 'text-accent-primary' : 'text-text-secondary')}>
+        <Upload
+          className="h-5 w-5 mb-2 transition-colors"
+          style={{ color: isActive ? 'var(--lp-iris)' : 'var(--lp-muted)' }}
+        />
+        <p
+          className="text-sm font-medium lp-display transition-colors"
+          style={{ color: isActive ? 'var(--lp-iris)' : 'var(--lp-body)' }}
+        >
           {uploadPDF.isPending ? 'Uploading…' : 'Drop PDF here or click to upload'}
         </p>
-        <p className="text-xs text-text-muted mt-1">PDF files only</p>
+        <p className="text-xs mt-1" style={{ color: 'var(--lp-muted)' }}>PDF files only</p>
       </div>
 
       {/* PDF list */}
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-28 rounded-lg border border-border-default bg-bg-surface animate-pulse" />
+            <div
+              key={i}
+              className="h-28 rounded-2xl animate-pulse"
+              style={{ backgroundColor: 'var(--lp-border)', opacity: 1 - i * 0.2 }}
+            />
           ))}
         </div>
       ) : pdfs.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="h-12 w-12 rounded-xl bg-bg-surface-raised border border-border-default flex items-center justify-center mb-4">
-            <FileText className="h-5 w-5 text-text-muted" />
+          <div
+            className="h-12 w-12 rounded-2xl flex items-center justify-center mb-4"
+            style={{ backgroundColor: 'rgba(167,139,250,0.08)', border: '1px solid var(--lp-border)' }}
+          >
+            <FileText className="h-5 w-5" style={{ color: 'var(--lp-muted)' }} />
           </div>
-          <h3 className="text-base font-semibold text-text-primary mb-1">No PDFs uploaded yet</h3>
-          <p className="text-sm text-text-muted max-w-xs leading-relaxed">
+          <h3 className="text-base font-semibold lp-display mb-1" style={{ color: 'var(--lp-ink)' }}>
+            No PDFs uploaded yet
+          </h3>
+          <p className="text-sm max-w-xs leading-relaxed" style={{ color: 'var(--lp-muted)' }}>
             Upload a PDF above to extract and index its content.
           </p>
         </div>
@@ -104,7 +117,12 @@ export default function PDFsPage() {
       <Dialog open={!!viewUrl} onOpenChange={(open) => !open && setViewUrl(null)}>
         <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0">
           <DialogHeader className="px-4 pt-4 pb-2 shrink-0">
-            <DialogTitle className="text-sm font-medium text-text-primary">PDF Viewer</DialogTitle>
+            <DialogTitle
+              className="text-sm font-medium lp-display"
+              style={{ color: 'var(--lp-ink)' }}
+            >
+              PDF Viewer
+            </DialogTitle>
           </DialogHeader>
           {viewUrl && (
             <iframe
@@ -139,12 +157,18 @@ function PDFCard({
   }
 
   return (
-    <div className="p-4 rounded-lg border border-border-default bg-bg-surface hover:bg-bg-surface-raised transition-colors group flex flex-col gap-3">
+    <div
+      className="p-4 rounded-2xl lp-glass group flex flex-col gap-3 transition-all hover:brightness-110"
+      style={{ border: '1px solid var(--lp-border)' }}
+    >
       <div className="flex items-start gap-2">
-        <div className="h-8 w-8 rounded bg-bg-surface-raised border border-border-subtle flex items-center justify-center shrink-0">
-          <FileText className="h-4 w-4 text-text-muted" />
+        <div
+          className="h-8 w-8 rounded-xl flex items-center justify-center shrink-0"
+          style={{ backgroundColor: 'rgba(167,139,250,0.08)', border: '1px solid var(--lp-border)' }}
+        >
+          <FileText className="h-4 w-4" style={{ color: 'var(--lp-muted)' }} />
         </div>
-        <p className="text-sm font-medium text-text-primary leading-snug line-clamp-2 flex-1">
+        <p className="text-sm font-medium lp-display leading-snug line-clamp-2 flex-1" style={{ color: 'var(--lp-ink)' }}>
           {pdf.title}
         </p>
       </div>
@@ -152,18 +176,22 @@ function PDFCard({
       <div className="flex items-center justify-between gap-2 mt-auto">
         <EmbeddingStatus status={embedStatus} onEmbed={handleEmbed} />
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button size="icon-sm" variant="ghost" onClick={onView} title="View PDF">
+          <button
+            onClick={onView}
+            title="View PDF"
+            className="h-7 w-7 flex items-center justify-center rounded-lg transition-colors hover:opacity-70"
+            style={{ color: 'var(--lp-body)' }}
+          >
             <Eye className="h-3.5 w-3.5" />
-          </Button>
-          <Button
-            size="icon-sm"
-            variant="ghost"
-            className="text-state-error hover:text-state-error"
+          </button>
+          <button
             onClick={() => deletePDF.mutate(pdf.id)}
             title="Delete"
+            className="h-7 w-7 flex items-center justify-center rounded-lg transition-colors hover:opacity-70"
+            style={{ color: 'var(--state-error)' }}
           >
             <Trash2 className="h-3.5 w-3.5" />
-          </Button>
+          </button>
         </div>
       </div>
     </div>

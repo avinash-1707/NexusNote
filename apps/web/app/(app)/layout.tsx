@@ -16,5 +16,5 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   if (!isAuthenticated) return null
 
-  return <>{children}</>
+  return <div className="lp-root">{children}</div>
 }

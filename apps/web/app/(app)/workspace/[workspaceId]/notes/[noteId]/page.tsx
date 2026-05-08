@@ -42,7 +42,7 @@ export default function NotePage() {
       Markdown,
     ],
     editorProps: {
-      attributes: { class: 'focus:outline-none min-h-[60vh] text-sm leading-7' },
+      attributes: { class: 'focus:outline-none min-h-[calc(100vh-14rem)] text-sm leading-7' },
     },
     onUpdate({ editor }) {
       clearTimeout(saveTimer.current)
@@ -53,7 +53,6 @@ export default function NotePage() {
     },
   })
 
-  // Set initial content once after note + editor both ready
   useEffect(() => {
     if (!editor || !note || editorInitialized.current) return
     editor.commands.setContent(note.content_md || '', { emitUpdate: false })
@@ -72,11 +71,12 @@ export default function NotePage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="flex flex-col" style={{ minHeight: 'calc(100vh - 5.5rem)' }}>
       {/* Title row */}
-      <div className="flex items-start justify-between gap-4 mb-5">
+      <div className="flex items-start justify-between gap-4 mb-4">
         <input
-          className="flex-1 text-2xl font-semibold text-text-primary bg-transparent border-none outline-none placeholder:text-text-muted"
+          className="flex-1 text-2xl font-semibold bg-transparent border-none outline-none lp-display placeholder:opacity-30"
+          style={{ color: 'var(--lp-ink)' }}
           placeholder="Untitled"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -87,9 +87,12 @@ export default function NotePage() {
         </div>
       </div>
 
-      {/* Toolbar */}
+      {/* Toolbar — sticky below navbar */}
       {editor && (
-        <div className="flex items-center gap-0.5 p-1 mb-4 rounded border border-border-default bg-bg-surface w-fit">
+        <div
+          className="sticky top-[4.75rem] z-10 flex items-center gap-0.5 p-1 mb-6 rounded-xl w-fit lp-glass"
+          style={{ border: '1px solid var(--lp-border)' }}
+        >
           <ToolbarBtn
             onClick={() => editor.chain().focus().toggleBold().run()}
             active={editor.isActive('bold')}
@@ -118,7 +121,7 @@ export default function NotePage() {
           >
             <Heading2 className="h-3.5 w-3.5" />
           </ToolbarBtn>
-          <div className="w-px h-4 bg-border-default mx-0.5" />
+          <div className="w-px h-4 mx-0.5" style={{ backgroundColor: 'var(--lp-border)' }} />
           <ToolbarBtn
             onClick={() => editor.chain().focus().toggleBulletList().run()}
             active={editor.isActive('bulletList')}
@@ -150,8 +153,8 @@ export default function NotePage() {
         </div>
       )}
 
-      {/* Editor area */}
-      <div className="min-h-[65vh] p-4 rounded-lg border border-border-subtle bg-bg-surface focus-within:border-border-default transition-colors">
+      {/* Editor — fills remaining height, no card border */}
+      <div className="flex-1 pb-12">
         <EditorContent editor={editor} />
       </div>
     </div>
@@ -174,12 +177,12 @@ function ToolbarBtn({
       type="button"
       onClick={onClick}
       title={label}
-      className={cn(
-        'h-7 w-7 flex items-center justify-center rounded transition-colors',
+      className="h-7 w-7 flex items-center justify-center rounded-lg transition-colors"
+      style={
         active
-          ? 'bg-accent-subtle text-accent-primary'
-          : 'text-text-muted hover:text-text-primary hover:bg-bg-surface-raised',
-      )}
+          ? { color: 'var(--lp-iris)', backgroundColor: 'rgba(167,139,250,0.15)' }
+          : { color: 'var(--lp-muted)' }
+      }
     >
       {children}
     </button>

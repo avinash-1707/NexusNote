@@ -22,14 +22,17 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-bg-base flex items-center justify-center">
-        <div className="h-5 w-5 rounded-full border-2 border-border-default border-t-accent-primary animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--lp-bg)' }}>
+        <div
+          className="h-5 w-5 rounded-full border-2 animate-spin"
+          style={{ borderColor: 'var(--lp-border)', borderTopColor: 'var(--lp-iris)' }}
+        />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-bg-base">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--lp-bg)' }}>
       <WorkspaceCreateModal
         open={showCreate}
         onOpenChange={setShowCreate}

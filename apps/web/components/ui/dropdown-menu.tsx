@@ -21,7 +21,7 @@ const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        'z-50 min-w-[8rem] overflow-hidden rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface-raised)] p-1 shadow-xl',
+        'z-50 min-w-[8rem] overflow-hidden rounded-xl border border-[var(--lp-border)] bg-[var(--lp-surface-glass)] backdrop-blur-[14px] p-1 shadow-xl',
         'data-[state=open]:animate-in data-[state=closed]:animate-out',
         'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
         'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -44,9 +44,9 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex cursor-default select-none items-center gap-2 rounded px-2 py-1.5 text-sm text-[var(--text-secondary)] outline-none transition-colors',
-      'hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]',
-      'focus:bg-[var(--bg-surface)] focus:text-[var(--text-primary)]',
+      'relative flex cursor-default select-none items-center gap-2 rounded px-2 py-1.5 text-sm text-[var(--lp-body)] outline-none transition-colors',
+      'hover:bg-[rgba(167,139,250,0.08)] hover:text-[var(--lp-ink)]',
+      'focus:bg-[rgba(167,139,250,0.08)] focus:text-[var(--lp-ink)]',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       inset && 'pl-8',
       className,
@@ -77,7 +77,7 @@ const DropdownMenuLabel = React.forwardRef<
   <DropdownMenuPrimitive.Label
     ref={ref}
     className={cn(
-      'px-2 py-1.5 text-xs font-semibold text-[var(--text-muted)]',
+      'px-2 py-1.5 text-xs font-semibold text-[var(--lp-muted)]',
       inset && 'pl-8',
       className,
     )}
@@ -95,8 +95,8 @@ const DropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      'flex cursor-default select-none items-center rounded px-2 py-1.5 text-sm text-[var(--text-secondary)] outline-none',
-      'focus:bg-[var(--bg-surface)] data-[state=open]:bg-[var(--bg-surface)]',
+      'flex cursor-default select-none items-center rounded px-2 py-1.5 text-sm text-[var(--lp-body)] outline-none',
+      'focus:bg-[rgba(167,139,250,0.08)] data-[state=open]:bg-[rgba(167,139,250,0.08)]',
       inset && 'pl-8',
       className,
     )}
@@ -115,7 +115,7 @@ const DropdownMenuSubContent = React.forwardRef<
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     className={cn(
-      'z-50 min-w-[8rem] overflow-hidden rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface-raised)] p-1 shadow-xl',
+      'z-50 min-w-[8rem] overflow-hidden rounded-xl border border-[var(--lp-border)] bg-[var(--lp-surface-glass)] backdrop-blur-[14px] p-1 shadow-xl',
       'data-[state=open]:animate-in data-[state=closed]:animate-out',
       'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
       'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -133,8 +133,8 @@ const DropdownMenuCheckboxItem = React.forwardRef<
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      'relative flex cursor-default select-none items-center rounded py-1.5 pl-8 pr-2 text-sm text-[var(--text-secondary)] outline-none transition-colors',
-      'focus:bg-[var(--bg-surface)] focus:text-[var(--text-primary)]',
+      'relative flex cursor-default select-none items-center rounded py-1.5 pl-8 pr-2 text-sm text-[var(--lp-body)] outline-none transition-colors',
+      'focus:bg-[rgba(167,139,250,0.08)] focus:text-[var(--lp-ink)]',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className,
     )}
@@ -158,8 +158,8 @@ const DropdownMenuRadioItem = React.forwardRef<
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      'relative flex cursor-default select-none items-center rounded py-1.5 pl-8 pr-2 text-sm text-[var(--text-secondary)] outline-none transition-colors',
-      'focus:bg-[var(--bg-surface)] focus:text-[var(--text-primary)]',
+      'relative flex cursor-default select-none items-center rounded py-1.5 pl-8 pr-2 text-sm text-[var(--lp-body)] outline-none transition-colors',
+      'focus:bg-[rgba(167,139,250,0.08)] focus:text-[var(--lp-ink)]',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className,
     )}

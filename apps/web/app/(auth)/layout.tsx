@@ -1,25 +1,8 @@
-import { Bricolage_Grotesque, DM_Sans } from 'next/font/google'
 import { ThemeToggle } from '@/components/ThemeToggle'
-
-const bricolage = Bricolage_Grotesque({
-  variable: '--font-display',
-  subsets: ['latin'],
-  display: 'swap',
-  weight: ['400', '500', '600', '700', '800'],
-})
-
-const dmSans = DM_Sans({
-  variable: '--font-body-lp',
-  subsets: ['latin'],
-  display: 'swap',
-  weight: ['300', '400', '500'],
-})
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div
-      className={`${bricolage.variable} ${dmSans.variable} lp-root min-h-screen flex items-center justify-center p-6 relative overflow-hidden`}
-    >
+    <div className="lp-root min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
       <div className="absolute top-4 right-4 z-50">
         <ThemeToggle />
       </div>
