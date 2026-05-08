@@ -12,4 +12,5 @@ class Link(SQLModel, table=True):
     url: str
     title: str = Field(default="")
     scraped_text: str = Field(default="")
+    is_indexed: bool = Field(default=False)
     created_at: datetime = Field(default_factory=datetime.utcnow)

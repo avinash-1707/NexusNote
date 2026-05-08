@@ -1,9 +1,10 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { Eye, FileText, Trash2, Upload } from 'lucide-react'
-import { useCreateEmbedding, useDeletePDF, usePDFs, useUploadPDF } from '@/lib/queries'
+import { qk, useCreateEmbedding, useDeletePDF, usePDFs, useUploadPDF } from '@/lib/queries'
 import { useEmbeddingStatus } from '@/hooks/useEmbeddingStatus'
 import { EmbeddingStatus } from '@/components/EmbeddingStatus'
 import type { PDF } from '@/lib/types'
@@ -148,11 +149,18 @@ function PDFCard({
   onView: () => void
 }) {
   const router = useRouter()
+  const qc = useQueryClient()
   const [jobId, setJobId] = useState<number | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const deletePDF = useDeletePDF(workspaceId)
   const createEmbedding = useCreateEmbedding(workspaceId)
   const embedStatus = useEmbeddingStatus(workspaceId, jobId)
+
+  useEffect(() => {
+    if (embedStatus === 'done') {
+      qc.invalidateQueries({ queryKey: qk.pdfs(workspaceId) })
+    }
+  }, [embedStatus, qc, workspaceId])
 
   const handleEmbed = async () => {
     const res = await createEmbedding.mutateAsync({ resource_type: 'pdf', resource_id: pdf.id })
@@ -178,7 +186,7 @@ function PDFCard({
         </div>
 
         <div className="flex items-center justify-between gap-2 mt-auto">
-          <EmbeddingStatus status={embedStatus} onEmbed={handleEmbed} />
+          <EmbeddingStatus status={embedStatus} isIndexed={pdf.is_indexed} onEmbed={handleEmbed} />
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={onView}

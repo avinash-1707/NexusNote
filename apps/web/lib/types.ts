@@ -10,6 +10,7 @@ export interface Note {
   workspace_id: number
   title: string
   content_md: string
+  is_indexed: boolean
   created_at: string
   updated_at: string
 }
@@ -19,6 +20,7 @@ export interface PDF {
   workspace_id: number
   title: string
   cloudinary_url: string
+  is_indexed: boolean
   created_at: string
 }
 
@@ -27,6 +29,7 @@ export interface Link {
   workspace_id: number
   url: string
   title: string
+  is_indexed: boolean
   created_at: string
 }
 

@@ -13,4 +13,5 @@ class PDF(SQLModel, table=True):
     cloudinary_url: str
     cloudinary_public_id: str
     extracted_text: str = Field(default="")
+    is_indexed: bool = Field(default=False)
     created_at: datetime = Field(default_factory=datetime.utcnow)

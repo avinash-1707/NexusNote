@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
@@ -9,6 +10,7 @@ import { Markdown } from 'tiptap-markdown'
 import { Bold, Code, Heading1, Heading2, Italic, List, ListOrdered, Quote } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useCreateEmbedding, useNote, useUpdateNote } from '@/lib/queries'
+import { qk } from '@/lib/queries'
 import { useEmbeddingStatus } from '@/hooks/useEmbeddingStatus'
 import { EmbeddingStatus } from '@/components/EmbeddingStatus'
 
@@ -18,6 +20,7 @@ export default function NotePage() {
   const noteId = Number(params.noteId)
 
   const { data: note } = useNote(workspaceId, noteId)
+  const qc = useQueryClient()
   const updateNote = useUpdateNote(workspaceId)
   const createEmbedding = useCreateEmbedding(workspaceId)
 
@@ -27,6 +30,13 @@ export default function NotePage() {
 
   const saveTimer = useRef<ReturnType<typeof setTimeout>>()
   const editorInitialized = useRef(false)
+
+  useEffect(() => {
+    if (embedStatus === 'done') {
+      qc.invalidateQueries({ queryKey: qk.note(workspaceId, noteId) })
+      qc.invalidateQueries({ queryKey: qk.notes(workspaceId) })
+    }
+  }, [embedStatus, noteId, qc, workspaceId])
 
   useEffect(() => {
     if (note && !editorInitialized.current) {
@@ -83,7 +93,9 @@ export default function NotePage() {
           onBlur={handleTitleBlur}
         />
         <div className="shrink-0 pt-1">
-          <EmbeddingStatus status={embedStatus} onEmbed={handleEmbed} />
+          {note && (
+            <EmbeddingStatus status={embedStatus} isIndexed={note.is_indexed} onEmbed={handleEmbed} />
+          )}
         </div>
       </div>
 

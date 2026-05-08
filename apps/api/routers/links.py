@@ -22,6 +22,7 @@ class LinkResponse(BaseModel):
     workspace_id: int
     url: str
     title: str
+    is_indexed: bool
     created_at: datetime
 
 

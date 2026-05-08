@@ -18,6 +18,7 @@ class PDFResponse(BaseModel):
     workspace_id: int
     title: str
     cloudinary_url: str
+    is_indexed: bool
     created_at: datetime
 
 

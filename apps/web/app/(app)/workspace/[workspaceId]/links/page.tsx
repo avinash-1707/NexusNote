@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { ExternalLink, Link2, Trash2 } from 'lucide-react'
-import { useCreateEmbedding, useDeleteLink, useLinks, useSaveLink } from '@/lib/queries'
+import { qk, useCreateEmbedding, useDeleteLink, useLinks, useSaveLink } from '@/lib/queries'
 import { useEmbeddingStatus } from '@/hooks/useEmbeddingStatus'
 import { EmbeddingStatus } from '@/components/EmbeddingStatus'
 import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog'
@@ -97,11 +98,18 @@ export default function LinksPage() {
 
 function LinkItem({ link, workspaceId }: { link: LinkType; workspaceId: number }) {
   const router = useRouter()
+  const qc = useQueryClient()
   const [jobId, setJobId] = useState<number | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const deleteLink = useDeleteLink(workspaceId)
   const createEmbedding = useCreateEmbedding(workspaceId)
   const embedStatus = useEmbeddingStatus(workspaceId, jobId)
+
+  useEffect(() => {
+    if (embedStatus === 'done') {
+      qc.invalidateQueries({ queryKey: qk.links(workspaceId) })
+    }
+  }, [embedStatus, qc, workspaceId])
 
   const handleEmbed = async () => {
     const res = await createEmbedding.mutateAsync({ resource_type: 'link', resource_id: link.id })
@@ -129,7 +137,7 @@ function LinkItem({ link, workspaceId }: { link: LinkType; workspaceId: number }
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
-          <EmbeddingStatus status={embedStatus} onEmbed={handleEmbed} />
+          <EmbeddingStatus status={embedStatus} isIndexed={link.is_indexed} onEmbed={handleEmbed} />
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <a
               href={link.url}

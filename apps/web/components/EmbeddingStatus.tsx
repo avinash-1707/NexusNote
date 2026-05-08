@@ -6,10 +6,11 @@ type EmbeddingStatusType = 'idle' | 'pending' | 'processing' | 'done' | 'error'
 
 interface EmbeddingStatusProps {
   status: EmbeddingStatusType
+  isIndexed: boolean
   onEmbed: () => void
 }
 
-export function EmbeddingStatus({ status, onEmbed }: EmbeddingStatusProps) {
+export function EmbeddingStatus({ status, isIndexed, onEmbed }: EmbeddingStatusProps) {
   if (status === 'pending' || status === 'processing') {
     return (
       <div className="flex items-center gap-2">
@@ -20,6 +21,15 @@ export function EmbeddingStatus({ status, onEmbed }: EmbeddingStatusProps) {
   }
 
   if (status === 'done') {
+    return (
+      <div className="flex items-center gap-2">
+        <CheckCircle2 className="h-4 w-4" style={{ color: 'var(--state-success)' }} />
+        <span className="text-xs font-mono" style={{ color: 'var(--state-success)' }}>Indexed</span>
+      </div>
+    )
+  }
+
+  if (isIndexed) {
     return (
       <div className="flex items-center gap-2">
         <CheckCircle2 className="h-4 w-4" style={{ color: 'var(--state-success)' }} />

@@ -6,6 +6,9 @@ from sqlmodel import select
 
 from core.database import AsyncSessionLocal
 from models.embedding import EmbeddingJob
+from models.link import Link
+from models.note import Note
+from models.pdf import PDF
 
 logger = logging.getLogger(__name__)
 
@@ -37,10 +40,12 @@ async def run_embedding_job(job_id: int) -> None:
 
             job.status = "done"
             job.error_message = None
+            await _set_resource_indexed(job, db, True)
         except Exception as exc:
             logger.exception("Embedding job %s failed", job_id)
             job.status = "error"
             job.error_message = _build_error_message(job, exc)
+            await _set_resource_indexed(job, db, False)
 
         job.updated_at = datetime.utcnow()
         db.add(job)
@@ -87,6 +92,29 @@ async def _get_resource_text(job: EmbeddingJob, db) -> tuple[str | None, str]:
         return link.title, link.scraped_text
 
     raise ValueError(f"Unsupported resource type '{job.resource_type}'.")
+
+
+async def _set_resource_indexed(
+    job: EmbeddingJob,
+    db,
+    is_indexed: bool,
+) -> None:
+    model_map = {
+        "note": Note,
+        "pdf": PDF,
+        "link": Link,
+    }
+    model = model_map.get(job.resource_type)
+    if model is None:
+        return
+
+    result = await db.exec(select(model).where(model.id == job.resource_id))
+    resource = result.first()
+    if not resource:
+        return
+
+    resource.is_indexed = is_indexed
+    db.add(resource)
 
 
 def _build_error_message(job: EmbeddingJob, exc: Exception) -> str:

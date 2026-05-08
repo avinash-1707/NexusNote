@@ -29,6 +29,7 @@ class NoteResponse(BaseModel):
     workspace_id: int
     title: str
     content_md: str
+    is_indexed: bool
     created_at: datetime
     updated_at: datetime
 
@@ -83,12 +84,20 @@ async def update_note(
 
     if body.title is not None:
         note.title = body.title
+    content_changed = body.content_md is not None and body.content_md != note.content_md
     if body.content_md is not None:
         note.content_md = body.content_md
+    if content_changed:
+        note.is_indexed = False
 
     note.updated_at = datetime.utcnow()
     db.add(note)
     await db.commit()
+
+    if content_changed:
+        from services.embedding_service import delete_resource_chunks
+        await delete_resource_chunks(workspace_id, "note", note_id, db)
+
     await db.refresh(note)
     return note
 
