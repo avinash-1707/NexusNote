@@ -19,7 +19,7 @@ Workspace-based knowledge management with a RAG-powered AI assistant. Store note
 | **Links** | Paste URL → server scrapes content → indexed for search |
 | **Embeddings** | Per-resource "Create Embedding" → background job → SSE status notification |
 | **AI Assistant** | Multi-session RAG chat with Gemini 2.0 Flash, context locked to workspace vectors |
-| **Auth** | Email/password + Google OAuth, JWT sessions |
+| **Auth** | Email/password, JWT sessions |
 | **Themes** | Dark (default) / Light toggle via `next-themes` |
 
 ---
@@ -91,7 +91,6 @@ nexusnote/
 - A [Neon](https://neon.tech) PostgreSQL database with the `pgvector` extension enabled
 - [Cloudinary](https://cloudinary.com) account
 - [Google AI Studio](https://aistudio.google.com) API key (Gemini)
-- *(Optional)* Google OAuth credentials for social login
 
 ---
 
@@ -120,9 +119,6 @@ DATABASE_URL=postgresql+asyncpg://user:password@host/nexusnote
 SECRET_KEY=your-random-secret-key
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=10080
-
-GOOGLE_CLIENT_ID=          # optional, for Google OAuth
-GOOGLE_CLIENT_SECRET=      # optional
 
 CLOUDINARY_CLOUD_NAME=
 CLOUDINARY_API_KEY=
@@ -212,7 +208,7 @@ npm run dev
 ## Database Schema
 
 ```
-users               id, email, hashed_password, google_id, created_at
+users               id, email, hashed_password, created_at
 workspaces          id, user_id, name, created_at, updated_at
 notes               id, workspace_id, title, content_md, created_at, updated_at
 pdfs                id, workspace_id, title, cloudinary_url, extracted_text, created_at
