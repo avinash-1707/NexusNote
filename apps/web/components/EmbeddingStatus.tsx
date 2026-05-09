@@ -56,7 +56,7 @@ export function EmbeddingStatus({ status, isIndexed, onEmbed }: EmbeddingStatusP
   return (
     <button
       onClick={onEmbed}
-      className="px-3 py-1.5 rounded-full text-xs font-semibold lp-display transition-opacity hover:opacity-80"
+      className="px-3 py-1.5 rounded-full text-xs font-semibold lp-display transition-opacity hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed"
       style={{ backgroundColor: 'rgba(167,139,250,0.15)', color: 'var(--lp-iris)', border: '1px solid rgba(167,139,250,0.25)' }}
     >
       Create Embedding

@@ -76,9 +76,15 @@ export default function NotePage() {
   }
 
   const handleEmbed = async () => {
-    const res = await createEmbedding.mutateAsync({ resource_type: 'note', resource_id: noteId })
-    setJobId(res.job_id)
+    try {
+      const res = await createEmbedding.mutateAsync({ resource_type: 'note', resource_id: noteId })
+      setJobId(res.job_id)
+    } catch {
+      // mutateAsync error is stored in createEmbedding.error; no-op here
+    }
   }
+
+  const effectiveEmbedStatus = createEmbedding.isPending ? 'pending' : embedStatus
 
   return (
     <div className="flex flex-col" style={{ minHeight: 'calc(100vh - 5.5rem)' }}>
@@ -94,7 +100,7 @@ export default function NotePage() {
         />
         <div className="shrink-0 pt-1">
           {note && (
-            <EmbeddingStatus status={embedStatus} isIndexed={note.is_indexed} onEmbed={handleEmbed} />
+            <EmbeddingStatus status={effectiveEmbedStatus} isIndexed={note.is_indexed} onEmbed={handleEmbed} />
           )}
         </div>
       </div>

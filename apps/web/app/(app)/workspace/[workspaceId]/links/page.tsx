@@ -112,9 +112,15 @@ function LinkItem({ link, workspaceId }: { link: LinkType; workspaceId: number }
   }, [embedStatus, qc, workspaceId])
 
   const handleEmbed = async () => {
-    const res = await createEmbedding.mutateAsync({ resource_type: 'link', resource_id: link.id })
-    setJobId(res.job_id)
+    try {
+      const res = await createEmbedding.mutateAsync({ resource_type: 'link', resource_id: link.id })
+      setJobId(res.job_id)
+    } catch {
+      // mutateAsync error stored in createEmbedding.error
+    }
   }
+
+  const effectiveEmbedStatus = createEmbedding.isPending ? 'pending' : embedStatus
 
   return (
     <>
@@ -137,7 +143,7 @@ function LinkItem({ link, workspaceId }: { link: LinkType; workspaceId: number }
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
-          <EmbeddingStatus status={embedStatus} isIndexed={link.is_indexed} onEmbed={handleEmbed} />
+          <EmbeddingStatus status={effectiveEmbedStatus} isIndexed={link.is_indexed} onEmbed={handleEmbed} />
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <a
               href={link.url}

@@ -163,9 +163,15 @@ function PDFCard({
   }, [embedStatus, qc, workspaceId])
 
   const handleEmbed = async () => {
-    const res = await createEmbedding.mutateAsync({ resource_type: 'pdf', resource_id: pdf.id })
-    setJobId(res.job_id)
+    try {
+      const res = await createEmbedding.mutateAsync({ resource_type: 'pdf', resource_id: pdf.id })
+      setJobId(res.job_id)
+    } catch {
+      // mutateAsync error stored in createEmbedding.error
+    }
   }
+
+  const effectiveEmbedStatus = createEmbedding.isPending ? 'pending' : embedStatus
 
   return (
     <>
@@ -186,7 +192,7 @@ function PDFCard({
         </div>
 
         <div className="flex items-center justify-between gap-2 mt-auto">
-          <EmbeddingStatus status={embedStatus} isIndexed={pdf.is_indexed} onEmbed={handleEmbed} />
+          <EmbeddingStatus status={effectiveEmbedStatus} isIndexed={pdf.is_indexed} onEmbed={handleEmbed} />
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={onView}

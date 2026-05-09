@@ -113,7 +113,10 @@ export function useCreateNote(workspaceId: number) {
         body: { title },
         token: token!,
       }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: qk.notes(workspaceId) }),
+    onSuccess: (note) => {
+      qc.setQueryData<Note[]>(qk.notes(workspaceId), (old) => [note, ...(old ?? [])])
+      qc.setQueryData(qk.note(workspaceId, note.id), note)
+    },
   })
 }
 
@@ -289,7 +292,9 @@ export function useCreateSession(workspaceId: number) {
         body: { title },
         token: token!,
       }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: qk.sessions(workspaceId) }),
+    onSuccess: (session) => {
+      qc.setQueryData<ChatSession[]>(qk.sessions(workspaceId), (old) => [session, ...(old ?? [])])
+    },
   })
 }
 
