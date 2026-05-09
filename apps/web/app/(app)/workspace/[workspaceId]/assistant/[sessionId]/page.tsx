@@ -6,6 +6,7 @@ import { Send, Brain } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 import { useChatMessages, useSendMessage, useWorkspaces } from '@/lib/queries'
+import ReactMarkdown from 'react-markdown'
 
 export default function ChatSessionPage() {
   const params = useParams<{ workspaceId: string; sessionId: string }>()
@@ -110,8 +111,8 @@ export default function ChatSessionPage() {
             >
               <div
                 className={cn(
-                  'max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap lp-display',
-                  msg.role === 'user' ? 'rounded-br-sm' : 'rounded-bl-sm lp-glass',
+                  'max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed lp-display',
+                  msg.role === 'user' ? 'rounded-br-sm whitespace-pre-wrap' : 'rounded-bl-sm lp-glass chat-markdown',
                 )}
                 style={
                   msg.role === 'user'
@@ -119,7 +120,11 @@ export default function ChatSessionPage() {
                     : { border: '1px solid var(--lp-border)', color: 'var(--lp-ink)' }
                 }
               >
-                {msg.content}
+                {msg.role === 'user' ? (
+                  msg.content
+                ) : (
+                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                )}
               </div>
             </div>
           ))}

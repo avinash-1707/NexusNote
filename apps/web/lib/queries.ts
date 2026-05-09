@@ -344,6 +344,31 @@ export function useSendMessage(workspaceId: number, sessionId: number) {
         `/workspaces/${workspaceId}/chat/sessions/${sessionId}/messages`,
         { method: 'POST', body: { content }, token: token! },
       ),
-    onSuccess: () => qc.invalidateQueries({ queryKey: qk.messages(sessionId) }),
+    // POST blocks until the assistant reply is ready and only returns the assistant row,
+    // so without this the UI would not show the user message until the request finished.
+    onMutate: async (content) => {
+      await qc.cancelQueries({ queryKey: qk.messages(sessionId) })
+      const previous = qc.getQueryData<ChatMessage[]>(qk.messages(sessionId))
+      const optimistic: ChatMessage = {
+        id: -Date.now(),
+        session_id: sessionId,
+        role: 'user',
+        content,
+        created_at: new Date().toISOString(),
+      }
+      qc.setQueryData<ChatMessage[]>(qk.messages(sessionId), (old) => [
+        ...(old ?? []),
+        optimistic,
+      ])
+      return { previous }
+    },
+    onError: (_err, _content, context) => {
+      if (context?.previous !== undefined) {
+        qc.setQueryData(qk.messages(sessionId), context.previous)
+      }
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: qk.messages(sessionId) })
+    },
   })
 }
