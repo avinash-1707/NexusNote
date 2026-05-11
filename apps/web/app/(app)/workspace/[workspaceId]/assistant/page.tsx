@@ -39,7 +39,7 @@ export default function AssistantPage() {
       />
 
       {/* Central orb graphic */}
-      <div className="relative flex items-center justify-center w-72 h-72 mb-10">
+      <div className="relative flex items-center justify-center w-48 h-48 sm:w-72 sm:h-72 mb-6 sm:mb-10">
         {/* Deep glow base */}
         <div
           className="absolute inset-0 rounded-full pointer-events-none"
@@ -51,7 +51,7 @@ export default function AssistantPage() {
 
         {/* Outer ring */}
         <div
-          className="lp-orb-spin absolute w-64 h-64 rounded-full"
+          className="lp-orb-spin absolute w-44 h-44 sm:w-64 sm:h-64 rounded-full"
           style={{ border: '1px solid rgba(167,139,250,0.1)' }}
         />
 
@@ -70,19 +70,19 @@ export default function AssistantPage() {
 
         {/* Middle ring */}
         <div
-          className="lp-orb-spin-rev absolute w-48 h-48 rounded-full"
+          className="lp-orb-spin-rev absolute w-32 h-32 sm:w-48 sm:h-48 rounded-full"
           style={{ border: '1px dashed rgba(34,211,238,0.18)' }}
         />
 
         {/* Inner ring */}
         <div
-          className="lp-orb-spin-sm absolute w-36 h-36 rounded-full"
+          className="lp-orb-spin-sm absolute w-24 h-24 sm:w-36 sm:h-36 rounded-full"
           style={{ border: '1px solid rgba(167,139,250,0.3)' }}
         />
 
         {/* Core orb */}
         <div
-          className="relative lp-float lp-glow-btn w-24 h-24 rounded-full flex items-center justify-center"
+          className="relative lp-float lp-glow-btn w-16 h-16 sm:w-24 sm:h-24 rounded-full flex items-center justify-center"
           style={{
             background:
               'radial-gradient(circle at 35% 30%, rgba(196,181,253,0.55) 0%, rgba(167,139,250,0.28) 40%, rgba(34,211,238,0.12) 70%, transparent 100%)',
@@ -92,7 +92,7 @@ export default function AssistantPage() {
           }}
         >
           <Brain
-            className="h-10 w-10"
+            className="h-7 w-7 sm:h-10 sm:w-10"
             style={{
               color: 'var(--lp-iris)',
               filter: 'drop-shadow(0 0 10px rgba(167,139,250,0.9))',
@@ -129,7 +129,7 @@ export default function AssistantPage() {
 
       {/* Heading */}
       <h1
-        className="lp-display text-3xl font-bold tracking-[-0.03em] leading-tight mb-3 lp-fade-up"
+        className="lp-display text-2xl sm:text-3xl font-bold tracking-[-0.03em] leading-tight mb-3 lp-fade-up"
         style={{ color: 'var(--lp-ink)', animationDelay: '0.1s' }}
       >
         Your AI Research Assistant
