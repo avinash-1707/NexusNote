@@ -70,12 +70,12 @@ export default function WorkspaceLayout({
     title: string;
   } | null>(null);
 
-  // Default closed on mobile
+  // Default closed on mobile on mount
   useEffect(() => {
     if (window.innerWidth < 1024) setSidebarOpen(false);
   }, []);
 
-  // Auto-close on mobile when navigating
+  // Auto-close sidebar on mobile when navigating
   useEffect(() => {
     if (window.innerWidth < 1024) setSidebarOpen(false);
   }, [pathname]);
@@ -125,30 +125,26 @@ export default function WorkspaceLayout({
         className="fixed top-0 left-0 right-0 z-50 h-14 flex items-center lp-glass"
         style={{ borderBottom: "1px solid var(--lp-border)" }}
       >
-        {/* Left: toggle + logo + workspace */}
+        {/* Desktop left: toggle + logo + workspace (hidden on mobile) */}
         <div
-          className={cn(
-            "flex items-center px-3 shrink-0 h-full gap-2",
-            "lg:w-60",
-          )}
+          className="hidden lg:flex flex-col justify-center px-4 shrink-0 w-60 h-full gap-0.5"
           style={{ borderRight: "1px solid var(--lp-border)" }}
         >
-          {showSidebar && (
-            <button
-              onClick={() => setSidebarOpen((o) => !o)}
-              className="h-7 w-7 flex items-center justify-center rounded-lg shrink-0 transition-opacity hover:opacity-70"
-              style={{ color: "var(--lp-muted)" }}
-              aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
-            >
-              {sidebarOpen ? (
-                <X className="h-4 w-4" />
-              ) : (
-                <Menu className="h-4 w-4" />
-              )}
-            </button>
-          )}
-
-          <div className="flex flex-col justify-center gap-0.5 min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            {showSidebar && (
+              <button
+                onClick={() => setSidebarOpen((o) => !o)}
+                className="h-6 w-6 flex items-center justify-center rounded-md shrink-0 transition-opacity hover:opacity-70"
+                style={{ color: "var(--lp-muted)" }}
+                aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+              >
+                {sidebarOpen ? (
+                  <X className="h-3.5 w-3.5" />
+                ) : (
+                  <Menu className="h-3.5 w-3.5" />
+                )}
+              </button>
+            )}
             <Link
               href="/"
               className="inline-flex items-center gap-1.5 group w-fit"
@@ -163,61 +159,71 @@ export default function WorkspaceLayout({
                 N
               </div>
               <span
-                className="lp-display font-medium text-xs hidden sm:inline"
+                className="lp-display font-medium text-xs"
                 style={{ color: "var(--lp-body)" }}
               >
                 NexusNote
               </span>
             </Link>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className="flex items-center gap-1 w-full lp-display text-sm font-semibold transition-opacity hover:opacity-70"
-                  style={{ color: "var(--lp-ink)" }}
-                >
-                  <span className="truncate max-w-[140px]">
-                    {currentWorkspace?.name ?? "…"}
-                  </span>
-                  <ChevronDown
-                    className="h-3 w-3 shrink-0"
-                    style={{ color: "var(--lp-muted)" }}
-                  />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-52">
-                <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {workspaces.map((ws) => (
-                  <DropdownMenuItem
-                    key={ws.id}
-                    className={cn(ws.id === workspaceId && "font-medium")}
-                    style={
-                      ws.id === workspaceId
-                        ? { color: "var(--lp-iris)" }
-                        : undefined
-                    }
-                    onSelect={() => router.push(`/workspace/${ws.id}/notes`)}
-                  >
-                    {ws.name}
-                  </DropdownMenuItem>
-                ))}
-                {workspaces.length < 5 && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onSelect={() => setShowCreateWs(true)}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      New workspace
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="flex items-center gap-1 w-full lp-display text-sm font-semibold transition-opacity hover:opacity-70"
+                style={{ color: "var(--lp-ink)" }}
+              >
+                <span className="truncate max-w-[180px]">
+                  {currentWorkspace?.name ?? "…"}
+                </span>
+                <ChevronDown
+                  className="h-3 w-3 shrink-0"
+                  style={{ color: "var(--lp-muted)" }}
+                />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-52">
+              <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {workspaces.map((ws) => (
+                <DropdownMenuItem
+                  key={ws.id}
+                  className={cn(ws.id === workspaceId && "font-medium")}
+                  style={
+                    ws.id === workspaceId
+                      ? { color: "var(--lp-iris)" }
+                      : undefined
+                  }
+                  onSelect={() => router.push(`/workspace/${ws.id}/notes`)}
+                >
+                  {ws.name}
+                </DropdownMenuItem>
+              ))}
+              {workspaces.length < 5 && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => setShowCreateWs(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    New workspace
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
+        {/* Mobile: hamburger (always shown) */}
+        <button
+          className="lg:hidden ml-3 h-8 w-8 flex items-center justify-center rounded-lg shrink-0 transition-opacity hover:opacity-70"
+          style={{ color: "var(--lp-muted)" }}
+          onClick={() => setSidebarOpen((o) => !o)}
+          aria-label="Open menu"
+        >
+          <Menu className="h-4 w-4" />
+        </button>
+
         {/* Center: tabs */}
-        <nav className="flex-1 flex items-center justify-center gap-0.5 px-2 overflow-x-auto">
+        <nav className="flex-1 flex items-center justify-center gap-0.5 px-2">
           {tabs.map((tab) => {
             const isActive = pathname.startsWith(tab.href);
             return (
@@ -241,30 +247,8 @@ export default function WorkspaceLayout({
           })}
         </nav>
 
-        {/* Right: AI + theme + avatar */}
-        <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 shrink-0">
-          <Link href={`/workspace/${workspaceId}/assistant`}>
-            <button
-              className="flex items-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-full text-xs font-semibold lp-display transition-all"
-              style={
-                isAssistant
-                  ? {
-                      color: "var(--lp-iris)",
-                      backgroundColor: "rgba(167,139,250,0.18)",
-                      border: "1px solid rgba(167,139,250,0.45)",
-                    }
-                  : {
-                      color: "var(--lp-iris)",
-                      backgroundColor: "rgba(167,139,250,0.08)",
-                      border: "1px solid rgba(167,139,250,0.22)",
-                    }
-              }
-              aria-label="AI Assistant"
-            >
-              <Brain className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Ask AI</span>
-            </button>
-          </Link>
+        {/* Desktop right: theme + avatar */}
+        <div className="hidden lg:flex items-center gap-3 px-4 shrink-0">
           <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -287,30 +271,117 @@ export default function WorkspaceLayout({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+
+        {/* Mobile right: theme only */}
+        <div className="lg:hidden flex items-center pr-3">
+          <ThemeToggle />
+        </div>
       </header>
 
       {/* ─── Sidebar ─── */}
-      {showSidebar && (
-        <>
-          {/* Mobile overlay backdrop */}
-          {sidebarOpen && (
-            <div
-              className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm lg:hidden"
-              onClick={() => setSidebarOpen(false)}
-            />
-          )}
+      {/* Always rendered — on mobile contains workspace/user; on desktop only shows on notes/assistant */}
+      <>
+        {/* Mobile overlay backdrop */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
 
-          <aside
-            className={cn(
-              "fixed left-0 top-14 bottom-0 w-60 flex flex-col z-40",
-              "transition-transform duration-200 ease-in-out",
-              !sidebarOpen && "-translate-x-full",
-            )}
-            style={{
-              borderRight: "1px solid var(--lp-border)",
-              backgroundColor: "var(--lp-bg)",
-            }}
+        <aside
+          className={cn(
+            "fixed left-0 top-14 bottom-0 w-60 flex flex-col z-40",
+            "transition-transform duration-200 ease-in-out",
+            // Mobile: open/close toggle
+            !sidebarOpen ? "-translate-x-full" : "translate-x-0",
+            // Desktop: only visible on notes/assistant pages
+            showSidebar && sidebarOpen
+              ? "lg:translate-x-0"
+              : "lg:-translate-x-full",
+          )}
+          style={{
+            borderRight: "1px solid var(--lp-border)",
+            backgroundColor: "var(--lp-bg)",
+          }}
+        >
+          {/* Mobile-only top: logo + workspace + AI link */}
+          <div
+            className="lg:hidden shrink-0 px-3 pt-3 pb-2"
+            style={{ borderBottom: "1px solid var(--lp-border)" }}
           >
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 group w-fit mb-2"
+            >
+              <div
+                className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold lp-display shrink-0"
+                style={{
+                  backgroundColor: "var(--lp-ink)",
+                  color: "var(--lp-bg)",
+                }}
+              >
+                N
+              </div>
+              <span
+                className="lp-display font-medium text-xs"
+                style={{ color: "var(--lp-body)" }}
+              >
+                NexusNote
+              </span>
+            </Link>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="flex items-center gap-1 w-full lp-display text-sm font-semibold transition-opacity hover:opacity-70 mb-2"
+                  style={{ color: "var(--lp-ink)" }}
+                >
+                  <span className="truncate max-w-[160px]">
+                    {currentWorkspace?.name ?? "…"}
+                  </span>
+                  <ChevronDown
+                    className="h-3 w-3 shrink-0"
+                    style={{ color: "var(--lp-muted)" }}
+                  />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-52">
+                <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {workspaces.map((ws) => (
+                  <DropdownMenuItem
+                    key={ws.id}
+                    className={cn(ws.id === workspaceId && "font-medium")}
+                    style={
+                      ws.id === workspaceId
+                        ? { color: "var(--lp-iris)" }
+                        : undefined
+                    }
+                    onSelect={() => {
+                      router.push(`/workspace/${ws.id}/notes`);
+                      setSidebarOpen(false);
+                    }}
+                  >
+                    {ws.name}
+                  </DropdownMenuItem>
+                ))}
+                {workspaces.length < 5 && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => setShowCreateWs(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      New workspace
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+          </div>
+
+          {/* Action button — only on notes/assistant pages */}
+          {showSidebar && (
             <div className="p-3 shrink-0">
               {isAssistant ? (
                 <button
@@ -340,12 +411,17 @@ export default function WorkspaceLayout({
                 </button>
               )}
             </div>
+          )}
 
+          {showSidebar && (
             <div
               className="h-px mx-3 shrink-0"
               style={{ backgroundColor: "var(--lp-border)" }}
             />
+          )}
 
+          {/* Notes / sessions list — only on notes/assistant pages */}
+          {showSidebar ? (
             <ScrollArea className="flex-1">
               <div className="p-2 space-y-0.5">
                 {isAssistant ? (
@@ -420,9 +496,26 @@ export default function WorkspaceLayout({
                 )}
               </div>
             </ScrollArea>
-          </aside>
-        </>
-      )}
+          ) : (
+            <div className="flex-1" />
+          )}
+
+          {/* Mobile-only bottom: logout */}
+          <div
+            className="lg:hidden shrink-0 px-3 py-2"
+            style={{ borderTop: "1px solid var(--lp-border)" }}
+          >
+            <button
+              onClick={logout}
+              className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-sm lp-display transition-opacity hover:opacity-70"
+              style={{ color: "var(--state-error)" }}
+            >
+              <LogOut className="h-4 w-4 shrink-0" />
+              Log out
+            </button>
+          </div>
+        </aside>
+      </>
 
       {/* ─── Main Content ─── */}
       <main
@@ -433,6 +526,39 @@ export default function WorkspaceLayout({
       >
         <div className="px-6 py-5">{children}</div>
       </main>
+
+      {/* ─── AI Assistant FAB ─── */}
+      <Link
+        href={`/workspace/${workspaceId}/assistant`}
+        className="group fixed bottom-6 right-6 z-40 flex items-center gap-0 h-12 rounded-full shadow-xl transition-all duration-200 overflow-hidden"
+        style={
+          isAssistant
+            ? {
+                backgroundColor: "var(--lp-iris)",
+                color: "var(--lp-bg)",
+                paddingLeft: "14px",
+                paddingRight: "14px",
+                boxShadow: "0 0 28px rgba(110,107,255,0.45)",
+              }
+            : {
+                backgroundColor: "var(--lp-ink)",
+                color: "var(--lp-bg)",
+                paddingLeft: "14px",
+                paddingRight: "14px",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.35)",
+              }
+        }
+        aria-label="AI Assistant"
+      >
+        <Brain className="h-5 w-5 shrink-0" />
+        <span
+          className="max-w-0 group-hover:max-w-[120px] opacity-0 group-hover:opacity-100 overflow-hidden whitespace-nowrap text-xs font-semibold lp-display transition-all duration-200"
+          style={{ marginLeft: 0 }}
+          aria-hidden="true"
+        >
+          &nbsp;AI Assistant
+        </span>
+      </Link>
 
       {/* Modals */}
       <WorkspaceCreateModal
