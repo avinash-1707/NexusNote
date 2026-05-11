@@ -527,38 +527,29 @@ export default function WorkspaceLayout({
         <div className="px-6 py-5">{children}</div>
       </main>
 
-      {/* ─── AI Assistant FAB ─── */}
-      <Link
-        href={`/workspace/${workspaceId}/assistant`}
-        className="group fixed bottom-6 right-6 z-40 flex items-center gap-0 h-12 rounded-full shadow-xl transition-all duration-200 overflow-hidden"
-        style={
-          isAssistant
-            ? {
-                backgroundColor: "var(--lp-iris)",
-                color: "var(--lp-bg)",
-                paddingLeft: "14px",
-                paddingRight: "14px",
-                boxShadow: "0 0 28px rgba(110,107,255,0.45)",
-              }
-            : {
-                backgroundColor: "var(--lp-ink)",
-                color: "var(--lp-bg)",
-                paddingLeft: "14px",
-                paddingRight: "14px",
-                boxShadow: "0 4px 24px rgba(0,0,0,0.35)",
-              }
-        }
-        aria-label="AI Assistant"
-      >
-        <Brain className="h-5 w-5 shrink-0" />
-        <span
-          className="max-w-0 group-hover:max-w-[120px] opacity-0 group-hover:opacity-100 overflow-hidden whitespace-nowrap text-xs font-semibold lp-display transition-all duration-200"
-          style={{ marginLeft: 0 }}
-          aria-hidden="true"
+      {!isAssistant && (
+        <Link
+          href={`/workspace/${workspaceId}/assistant`}
+          className="group fixed bottom-6 right-6 z-40 flex items-center gap-0 h-12 rounded-full shadow-xl transition-all duration-200 overflow-hidden"
+          style={{
+            backgroundColor: "var(--lp-ink)",
+            color: "var(--lp-bg)",
+            paddingLeft: "14px",
+            paddingRight: "14px",
+            boxShadow: "0 4px 24px rgba(0,0,0,0.35)",
+          }}
+          aria-label="AI Assistant"
         >
-          &nbsp;AI Assistant
-        </span>
-      </Link>
+          <Brain className="h-5 w-5 shrink-0" />
+          <span
+            className="max-w-0 group-hover:max-w-[120px] opacity-0 group-hover:opacity-100 overflow-hidden whitespace-nowrap text-xs font-semibold lp-display transition-all duration-200"
+            style={{ marginLeft: 0 }}
+            aria-hidden="true"
+          >
+            &nbsp;AI Assistant
+          </span>
+        </Link>
+      )}
 
       {/* Modals */}
       <WorkspaceCreateModal
