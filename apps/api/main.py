@@ -8,7 +8,7 @@ app = FastAPI(title="NexusNote API", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://nexusnote.onrender.com"],
+    allow_origins=["http://localhost:3000", "https://nexusnote.avnsh.xyz"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
