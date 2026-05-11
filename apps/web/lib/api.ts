@@ -1,4 +1,25 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+function getApiUrl() {
+  const productionApiUrl = 'https://nexusnote.onrender.com'
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL?.trim()
+
+  if (apiUrl) {
+    const normalizedApiUrl = apiUrl.replace(/\/$/, '')
+
+    if (process.env.NODE_ENV === 'production' && normalizedApiUrl !== productionApiUrl) {
+      throw new Error(`NEXT_PUBLIC_API_URL must be ${productionApiUrl} for production builds.`)
+    }
+
+    return normalizedApiUrl
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('NEXT_PUBLIC_API_URL must be set for production builds.')
+  }
+
+  return 'http://localhost:8000'
+}
+
+const API_URL = getApiUrl()
 
 type RequestOptions = {
   method?: string
